@@ -1,8 +1,8 @@
 import {connect} from 'react-redux'
 import Loader from './Loader'
-import asyncComponentStatus from './actions'
+import asyncSetStatus from './action'
 
 export default connect((state, {loadId}) => {
-    const loading = (state.asyncComponent[loadId] && state.asyncComponent[loadId].loading === true) || false
-    return {loading}
-}, {asyncComponentStatus})(Loader)
+    const asyncIsLoading = (state.asyncLoad[loadId] && state.asyncLoad[loadId].loading === true) || false
+    return {asyncIsLoading}
+}, {asyncSetStatus})(Loader)
