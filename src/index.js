@@ -1,7 +1,7 @@
 import ReduxLoader from './Container'
 import Loader from './Loader'
-import Actions from './actions'
-import Reducer from './reducer'
+import actions from './actions'
+import reducer from './reducer'
 
 const isReady = ({asyncComponent}) => {
     const comps = Object.keys(asyncComponent).filter(k => asyncComponent[k].loading)
@@ -12,8 +12,8 @@ const isReady = ({asyncComponent}) => {
 
 export {
     Loader,
-    Actions,
-    Reducer,
     ReduxLoader,
+    actions,
+    reducer,
     isReady
 }
