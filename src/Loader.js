@@ -38,5 +38,3 @@ export default class Loader extends Component {
         return React.cloneElement((Array.isArray(children)) ? children[0] : React.Children.only(children), props)
     }
 }
-
-
