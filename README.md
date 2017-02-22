@@ -39,6 +39,39 @@ This allow us to have a deep three rendering on server side.
 npm install redux-async-load --save
 ```
 
+## Api
+
+#### renderAsync(store: Object, render: () => string):Promise<string>
+For Server side only
+
+##### Args
+- store: Object 
+  - the redux store implementing the reducer from this module and the rest of your data
+- render: Function 
+  - no args
+  - return string
+  - This method will be invoked for each render on server side, you must return the html of your app using renderToString from react-dom
+
+## Components
+
+#### \<ReduxLoader />
+##### props
+- loadId: string The Id of the connected element
+- shouldLoad:(props) => boolean 
+    - props: Object The props passed to the component
+    - If this method return true, and if the component is not marked as loaded in state, the component will call the load method
+- load: (props) => Promise<any>
+    - props Object The props passed to the component
+    - This method must return a promise one load has been done. Normally, It should returns the result of an async dispatching action
+- shouldReload: (props) => boolean
+    - props: Object The props passed to the component
+    - If this method return true, the component will call the call method
+- render: (props) => React.Element
+    - props: Object The props passed to the component
+    - If this property is present, It'll be used as the default render, and must return a single valid component. 
+
+
+
 ## Usage
 
 ### Create an async component
@@ -58,14 +91,14 @@ const AsyncUser = props => <ReduxLoader
     {/* Do not load if we do not have data */}
     shouldLoad={props => !props.data}
     
-    {/* This tell the component how to load your data */}
+    {/* This tells the component how to load your data */}
     {/* This is not required if you pass an action creator named "load" to connect */}
     load={props => props.load(props)}
     
-    {/* The component receive props, tell him if he must reload data */}
+    {/* The component receives props, tell him if he must reload data */}
     shouldReload={(props, oldProps) => (props.loadId !== oldProps.loadId) && !props.data}
     
-    {/* This is the render method, use it to render children */}
+    {/* This is the render method, use it to an altenrative way to render children */}
     {/* If the component contains chilren, they will be present in props.children */}
     render={props => <User {...props} />}
 >
@@ -135,38 +168,6 @@ import App from './app'
 
 render(<Provider store={store}><App /></Provider>, document.getElementById('app-root'))
 ```
-
-
-## Api
-
-#### renderAsync(store: Object, render: () => string):Promise<string>
-For Server side only
-
-##### Args
-- store: Object 
-  - the redux store implementing the reducer from this module and the rest of your data
-- render: Function 
-  - no args
-  - return string
-  - This method will be invoked for each render on server side, you must return the html of your app using renderToString from react-dom
-
-## Components
-
-#### \<ReduxLoader />
-##### props
-- loadId: string The Id of the connected element
-- shouldLoad:(props) => boolean 
-    - props: Object The props passed to the component
-    - If this method return true, and if the component is not marked as loaded in state, the component will call the load method
-- load: (props) => Promise<any>
-    - props Object The props passed to the component
-    - This method must return a promise one load has been done. Normally, It should returns the result of an async dispatching action
-- shouldReload: (props) => boolean
-    - props: Object The props passed to the component
-    - If this method return true, the component will call the call method
-- render: (props) => React.Element
-    - props: Object The props passed to the component
-    - If this property is present, It'll be used as the default render, and must return a single valid component. 
 
 #### Disclamer
 
