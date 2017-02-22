@@ -3,7 +3,6 @@ import React, {Component} from 'react'
 export default class Loader extends Component {
 
     static propTypes = {
-
         loadId: React.PropTypes.string.isRequired,
         shouldLoad: React.PropTypes.func.isRequired,
         load: React.PropTypes.func.isRequired,
@@ -17,7 +16,7 @@ export default class Loader extends Component {
 
     componentWillMount() {
         const {loadId, shouldLoad, load, asyncIsLoading, asyncSetStatus} = this.props
-        if (!shouldLoad(this.props) && !asyncIsLoading) {
+        if (shouldLoad(this.props) && !asyncIsLoading) {
             asyncSetStatus(loadId, {loading: true})
             load(this.props).then(() => asyncSetStatus(loadId, {loading: false}))
         }

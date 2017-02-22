@@ -41,7 +41,7 @@ npm install redux-async-load --save
 
 ## Api
 
-#### renderAsync(store: Object, render: () => string):Promise\<string>
+#### renderAsync(store: Object, render: () => string, stateKey: string = 'asyncLoad'):Promise\<string>
 For Server side only
 
 ##### Args
@@ -51,6 +51,23 @@ For Server side only
   - no args
   - return string
   - This method will be invoked for each render on server side, you must return the html of your app using renderToString from react-dom
+- stateKey: string 
+    - default: 'asyncLoad'
+    - This is the key of the reducer in your state
+    
+#### stateSelector:(key, state) =>) => asyncState
+stateSelector is used to find the asyncState inside the redux state.
+- key: string
+    - The key of the asyncState in the redux state
+- state: Object 
+    - The redux state
+
+#### isReady:(asyncState: {[key]: {loading: boolean}}) => boolean
+isReady will check the asyncState to know if all components are loaded
+- asyncState: Object
+    - This is the state of the component living in the store. Use the stateSelector to get it.
+- return boolean true if all components are loaded  
+
 
 ## Components
 
@@ -78,7 +95,8 @@ For Server side only
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import {ReduxLoader} from 'redux-async-load'
-//this is a redux action creator to load data that will use index to return a user from state
+
+//this is a redux action creator to load data that will use index to load the user in state.
 import {loadMyUser as load} from './action'
 
 const User = props => <p>{props.user && props.user.name}</p>
@@ -91,8 +109,8 @@ const AsyncUser = props => <ReduxLoader
     shouldLoad={props => !props.data}
     
     {/* This tells the component how to load your data */}
-    {/* This is not required if you pass an action creator named "load" to connect */}
-    load={props => props.load(props)}
+    {/* This is not invoked if you pass an action creator named "load" to connect because it will replace this props */}
+    load={props => load(props)}
     
     {/* The component receives props, tell him if he must reload data */}
     shouldReload={(props, oldProps) => (props.loadId !== oldProps.loadId) && !props.data}
@@ -135,9 +153,10 @@ export default props => (
 ### Add the reducer to your redux store (store.js)
 ```javascript
 import {createStore, combineReducers}  from 'redux'
+import {reducer as asyncLoad} from 'redux-async-load'
 
 export default createStore(combineReducers({
-   asyncLoad: asyncReducer, // <-- add the reducer to your reducers 
+   asyncLoad, // <-- add the reducer to your reducers 
    //[your reducers]
 }), yourInitialState)
 ```
@@ -145,14 +164,14 @@ export default createStore(combineReducers({
 ### Example of a render express middleware on server side (server.js)
 ```javascript
 import {renderToString} from 'react-dom'
-import {renderAsync, reducer as asyncReducer} from 'redux-async-load'
+import {renderAsync} from 'redux-async-load'
+import {Provider} from 'react-redux'
 import store from './store'
 import App from './app'
 
 export default (req, res, next) => {
     
     //Your other jobs
-    //sync history with store and more...
     
     //render async will subscribe to the store, and knows when the data are loaded
     renderAsync(store, () => renderToString(<Provider store={store}><App /></Provider>))
@@ -169,13 +188,14 @@ export default (req, res, next) => {
 ### Render on the client side as usual (client.js)
 ```javascript
 import {render} from 'react-dom'
+import {Provider} from 'react-redux'
 import store from './store'
 import App from './app'
 
 render(<Provider store={store}><App /></Provider>, document.getElementById('app-root'))
 ```
 
-#### Disclamer
+#### Todo
 
 - add examples
 - add tests
