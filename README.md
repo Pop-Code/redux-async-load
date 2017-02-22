@@ -71,7 +71,6 @@ For Server side only
     - If this property is present, It'll be used as the default render, and must return a single valid component. 
 
 
-
 ## Usage
 
 ### Create an async component
@@ -79,7 +78,7 @@ For Server side only
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import {ReduxLoader} from 'redux-async-load'
-//this is a redux action creator to load data
+//this is a redux action creator to load data that will use index to return a user from state
 import {loadMyUser as load} from './action'
 
 const User = props => <p>{props.name}</p>
@@ -115,8 +114,7 @@ export default connect((state, props) => {
     const index = props.index
     return {
         loadId: 'async-load-'+index,
-        name: state.user[index],
-        language: state.language
+        name: state.user[index]
     }
 }, ({load}))(AsyncUser)
 
