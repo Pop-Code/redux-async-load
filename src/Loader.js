@@ -11,7 +11,7 @@ export default class Loader extends Component {
 
         //redux component specific props
         asyncIsLoading: React.PropTypes.bool.isRequired,
-        asyncSetStatus: React.PropTypes.func.isRequired
+        asyncSetStatus: React.PropTypes.func.isRequired,
     }
 
     componentWillMount() {
