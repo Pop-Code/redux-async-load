@@ -41,7 +41,7 @@ npm install redux-async-load --save
 
 ## Api
 
-#### renderAsync(store: Object, render: () => string):Promise<string>
+#### renderAsync(store: Object, render: () => string):Promise\<string>
 For Server side only
 
 ##### Args
@@ -60,7 +60,7 @@ For Server side only
 - shouldLoad:(props) => boolean 
     - props: Object The props passed to the component
     - If this method return true, and if the component is not marked as loaded in state, the component will call the load method
-- load: (props) => Promise<any>
+- load: (props) => Promise\<any>
     - props Object The props passed to the component
     - This method must return a promise one load has been done. Normally, It should returns the result of an async dispatching action
 - shouldReload: (props) => boolean
@@ -81,7 +81,7 @@ import {ReduxLoader} from 'redux-async-load'
 //this is a redux action creator to load data that will use index to return a user from state
 import {loadMyUser as load} from './action'
 
-const User = props => <p>{props.name}</p>
+const User = props => <p>{props.user && props.user.name}</p>
 
 const AsyncUser = props => <ReduxLoader 
     {/* This is the unique identifier to store the status of the component in the store */}
@@ -113,8 +113,10 @@ const AsyncUser = props => <ReduxLoader
 export default connect((state, props) => {
     const index = props.index
     return {
+        //set a unique load id
         loadId: 'async-load-'+index,
-        name: state.user[index]
+        //We suppose the load action will hydrate this part of the state with data
+        user: state.user[index]
     }
 }, ({load}))(AsyncUser)
 
@@ -140,22 +142,28 @@ export default createStore(combineReducers({
 }), yourInitialState)
 ```
 
-### Render on server side (server.js)
+### Example of a render express middleware on server side (server.js)
 ```javascript
 import {renderToString} from 'react-dom'
 import {renderAsync, reducer as asyncReducer} from 'redux-async-load'
 import store from './store'
 import App from './app'
 
-//render async will subscribe to the store, and knows when the data are loaded
-renderAsync(store, () => renderToString(<Provider store={store}><App /></Provider>))
-    //Render the generated html as you do normally
-    .then(html => {
-        // Build your html structure with your favorite tool (like Helmet)
-        const html = <Html component={<App />}/> 
-        res.send('<!doctype html>\n' + html)
-    })
-    .catch(next)    
+export default (req, res, next) => {
+    
+    //Your other jobs
+    //sync history with store and more...
+    
+    //render async will subscribe to the store, and knows when the data are loaded
+    renderAsync(store, () => renderToString(<Provider store={store}><App /></Provider>))
+        //Render the generated html as you do normally
+        .then(html => {
+            // Build your html structure with your favorite tool (like Helmet)
+            const html = <Html component={<App />}/> 
+            res.send('<!doctype html>\n' + html)
+        })
+        .catch(next)  
+}
 ```
 
 ### Render on the client side as usual (client.js)
@@ -166,6 +174,11 @@ import App from './app'
 
 render(<Provider store={store}><App /></Provider>, document.getElementById('app-root'))
 ```
+
+#### Disclamer
+
+- add examples
+- add tests
 
 #### Disclamer
 
