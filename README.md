@@ -32,6 +32,11 @@ On server side, each time the store receive a event like this, he will re render
 
 This allow us to have a deep three rendering on server side.
 
+## Use case
+With the new react router v4, routes are loaded in components, if you have some routes inside a component that is deep in your three,
+react won't see this route during the renderToString.
+react-async-load is a tool to build you state data using re-render on server side.
+
 
 ## Install
 
@@ -41,7 +46,7 @@ npm install redux-async-load --save
 
 ## Api
 
-#### renderAsync(store: Object, render: () => string, stateKey: string = 'asyncLoad'):Promise\<string>
+### renderAsync(store: Object, render: () => string, stateKey: string = 'asyncLoad'):Promise\<string>
 For Server side only
 
 ##### Args
@@ -55,14 +60,14 @@ For Server side only
     - default: 'asyncLoad'
     - This is the key of the reducer in your state
     
-#### stateSelector:(key, state) =>) => asyncState
+### stateSelector:(key, state) =>) => asyncState
 stateSelector is used to find the asyncState inside the redux state.
 - key: string
     - The key of the asyncState in the redux state
 - state: Object 
     - The redux state
 
-#### isReady:(asyncState: {[key]: {loading: boolean}}) => boolean
+### isReady:(asyncState: {[key]: {loading: boolean}}) => boolean
 isReady will check the asyncState to know if all components are loaded
 - asyncState: Object
     - This is the state of the component living in the store. Use the stateSelector to get it.
@@ -71,8 +76,8 @@ isReady will check the asyncState to know if all components are loaded
 
 ## Components
 
-#### \<ReduxLoader />
-##### props
+### \<ReduxLoader />
+#### props
 - loadId: string The Id of the connected element
 - shouldLoad:(props) => boolean 
     - props: Object The props passed to the component
