@@ -59,7 +59,9 @@ For Server side only
 - stateKey: string 
     - default: 'asyncLoad'
     - This is the key of the reducer in your state
-    
+##### Returns
+A Promise with the final html string of the application
+
 ### stateSelector:(key, state) =>) => asyncState
 stateSelector is used to find the asyncState inside the redux state.
 - key: string
@@ -135,8 +137,6 @@ const AsyncUser = props => <ReduxLoader
 //connect our component to the state
 export default connect((state, {userId}) => {
     return {
-        //set a unique load id (used by the ReduxLoader)
-        loadId: 'async-load-'+userId,
         //We suppose the load action will hydrate this part of the state with data (used buy AsyncUser)
         user: state.user[userId]
     }
