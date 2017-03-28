@@ -22,7 +22,6 @@ export const renderAsync = (store, render, stateKey = 'asyncLoad') => {
         const subscriber = store.subscribe(() => {
             let previousState = asyncComponentsState
             asyncComponentsState = stateSelector(stateKey, store.getState())
-            console.log(asyncComponentsState, stateKey)
             if (!!previousState && (previousState !== asyncComponentsState) && isReady(asyncComponentsState)) {
                 html = render()
                 subscriber()

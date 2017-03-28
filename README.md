@@ -84,7 +84,7 @@ isReady will check the asyncState to know if all components are loaded
     - If this method return true, and if the component is not marked as loaded in state, the component will call the load method
 - load: (props) => Promise\<any>
     - props Object The props passed to the component
-    - This method must return a promise one load has been done. Normally, It should returns the result of an async dispatching action
+    - This method must return a promise once load has been done. Normally, It should returns the result of an async dispatching action
 - shouldReload: (props) => boolean
     - props: Object The props passed to the component
     - If this method return true, the component will call the call method
@@ -125,21 +125,20 @@ const AsyncUser = props => <ReduxLoader
     render={props => <User {...props} />}
 >
     {/* OR */}
-    {/* This is the normal way of rendering ans element */}
-    {/* <User /> will be a clone with all props hydrated to */}
-    {/* If the property render is present, this will not be invoked */}
+    {/* This is the normal way of rendering an element */}
+    {/* <User /> will be cloned with all props hydrated */}
+    {/* If the prop render is present, children are ignored */}
     <User />
 </ReduxLoader>
 
 
 //connect our component to the state
-export default connect((state, props) => {
-    const index = props.index
+export default connect((state, {userId}) => {
     return {
-        //set a unique load id
-        loadId: 'async-load-'+index,
-        //We suppose the load action will hydrate this part of the state with data
-        user: state.user[index]
+        //set a unique load id (used by the ReduxLoader)
+        loadId: 'async-load-'+userId,
+        //We suppose the load action will hydrate this part of the state with data (used buy AsyncUser)
+        user: state.user[userId]
     }
 }, ({load}))(AsyncUser)
 
@@ -150,7 +149,7 @@ export default connect((state, props) => {
 export default props => (
     <div>
         <p>This component will be preloaded on server</p>
-        <AsyncUser index={0}/>
+        <AsyncUser userId={0}/>
     </div>
 )
 ```
@@ -173,21 +172,25 @@ import {renderAsync} from 'redux-async-load'
 import {Provider} from 'react-redux'
 import store from './store'
 import App from './app'
+import Html from './html' // <= your html template
+import express from 'express'
 
-export default (req, res, next) => {
+const app = new express()
+
+app.use((req, res, next) => {
     
     //Your other jobs
     
     //render async will subscribe to the store, and knows when the data are loaded
     renderAsync(store, () => renderToString(<Provider store={store}><App /></Provider>))
         //Render the generated html as you do normally
-        .then(html => {
+        .then(appHtml => {
             // Build your html structure with your favorite tool (like Helmet)
-            const html = <Html component={<App />}/> 
+            const html = <Html content={appHtml} /> 
             res.send('<!doctype html>\n' + html)
         })
         .catch(next)  
-}
+})
 ```
 
 ### Render on the client side as usual (client.js)
