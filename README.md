@@ -62,19 +62,24 @@ For Server side only
 ##### Returns
 A Promise with the final html string of the application
 
-### stateSelector:(key, state) =>) => asyncState
+### stateSelector:(key = 'asyncLoad', state) =>) => asyncState
 stateSelector is used to find the asyncState inside the redux state.
 - key: string
-    - The key of the asyncState in the redux state
+    - The key of the asyncState in the redux state (default = 'asyncLoad')
 - state: Object 
     - The redux state
 
-### isReady:(asyncState: {[key]: {loading: boolean}}) => boolean
+### isReady:(asyncState: {[loadId]: {loading: boolean}}) => boolean
 isReady will check the asyncState to know if all components are loaded
 - asyncState: Object
     - This is the state of the component living in the store. Use the stateSelector to get it.
 - return boolean true if all components are loaded  
 
+## Action creator
+### asyncSetStatus:(loadId, {loading: boolean})
+- loadId: string
+    - This is unique identifier of the operation in the asyncState
+- return an action
 
 ## Components
 
@@ -84,9 +89,11 @@ isReady will check the asyncState to know if all components are loaded
 - shouldLoad:(props) => boolean 
     - props: Object The props passed to the component
     - If this method return true, and if the component is not marked as loaded in state, the component will call the load method
-- load: (props) => Promise\<any>
+- load: (props) => Promise\<any> | null
     - props Object The props passed to the component
-    - This method must return a promise once load has been done. Normally, It should returns the result of an async dispatching action
+    - If this method returns a promise once load has been done, the loaded status of the component will be set automatically to false.
+      If not, you will have to dispatch the action asyncSetStatus
+      Normally, It should returns the result of an action
 - shouldReload: (props) => boolean
     - props: Object The props passed to the component
     - If this method return true, the component will call the call method
@@ -104,7 +111,7 @@ import {connect} from 'react-redux'
 import {ReduxLoader} from 'redux-async-load'
 
 //this is a redux action creator to load data that will use index to load the user in state.
-import {loadMyUser as load} from './action'
+import {myLoadAction} from './action'
 
 const User = props => <p>{props.user && props.user.name}</p>
 
@@ -112,15 +119,15 @@ const AsyncUser = props => <ReduxLoader
     {/* This is the unique identifier to store the status of the component in the store */}
     loadId="my-unique-state-id"
     
-    {/* Do not load if we do not have data */}
+    {/* Do load only if we do not have data */}
     shouldLoad={props => !props.data}
     
     {/* This tells the component how to load your data */}
     {/* This is not invoked if you pass an action creator named "load" to connect because it will replace this props */}
-    load={props => load(props)}
+    load={props => myLoadAction(props.userId)}
     
     {/* The component receives props, tell him if he must reload data */}
-    shouldReload={(props, oldProps) => (props.loadId !== oldProps.loadId) && !props.data}
+    shouldReload={(props, oldProps) => (props.userId !== oldProps.userId) && !props.data}
     
     {/* This is the render method, use it to an altenrative way to render children */}
     {/* If the component contains chilren, they will be present in props.children */}
@@ -128,8 +135,8 @@ const AsyncUser = props => <ReduxLoader
 >
     {/* OR */}
     {/* This is the normal way of rendering an element */}
-    {/* <User /> will be cloned with all props hydrated */}
-    {/* If the prop render is present, children are ignored */}
+    {/* <User /> will be cloned with all props */}
+    {/* If the prop render is present, those children are ignored */}
     <User />
 </ReduxLoader>
 
@@ -138,7 +145,7 @@ const AsyncUser = props => <ReduxLoader
 export default connect((state, {userId}) => {
     return {
         //We suppose the load action will hydrate this part of the state with data (used buy AsyncUser)
-        user: state.user[userId]
+        data: state.user[userId]
     }
 }, ({load}))(AsyncUser)
 
@@ -149,7 +156,7 @@ export default connect((state, {userId}) => {
 export default props => (
     <div>
         <p>This component will be preloaded on server</p>
-        <AsyncUser userId={0}/>
+        <AsyncUser userId={12345}/>
     </div>
 )
 ```
