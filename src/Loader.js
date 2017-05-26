@@ -19,7 +19,7 @@ export default class Loader extends Component {
         if (shouldLoad(this.props) && !asyncIsLoading) {
             asyncSetStatus(loadId, {loading: true})
             const p = load(this.props)
-            if (typeof p.then === 'function') {
+            if (typeof p === 'object' && typeof p.then === 'function') {
                 p.then(() => asyncSetStatus(loadId, {loading: false}))
             }
         }
