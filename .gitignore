@@ -64,3 +64,5 @@ typings/
 .env
 
 .idea/*
+
+package-lock.json

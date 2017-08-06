@@ -1,5 +1,6 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
+
 export default class Loader extends Component {
 
     static propTypes = {
@@ -27,7 +28,7 @@ export default class Loader extends Component {
 
     componentWillReceiveProps(props) {
         const {shouldReload, load, asyncIsLoading} = props
-        return shouldReload(props, this.props) && !asyncIsLoading && load(props)
+        return !asyncIsLoading && shouldReload(props, this.props) && load(props)
     }
 
     render() {
