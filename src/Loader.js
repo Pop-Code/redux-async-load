@@ -17,7 +17,7 @@ export default class Loader extends Component {
 
     componentWillMount() {
         const {loadId, shouldLoad, load, asyncIsLoading, asyncSetStatus} = this.props
-        if (shouldLoad(this.props) && !asyncIsLoading) {
+        if (!asyncIsLoading && shouldLoad(this.props)) {
             asyncSetStatus(loadId, {loading: true})
             const p = load(this.props)
             if (typeof p === 'object' && typeof p.then === 'function') {
